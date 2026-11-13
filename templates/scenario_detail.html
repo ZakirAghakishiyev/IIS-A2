@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ scenario.company_name }} — Clarity</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">
+        <span class="brand-icon">C</span>
+        <span>clarity</span>
+    </a>
+    <div class="nav-links">
+        <a href="/scenarios">All scenarios</a>
+    </div>
+</nav>
+
+<main class="scenarios-page">
+
+    <section class="scenarios-heading">
+        <span class="eyebrow">{{ scenario.sector }}</span>
+        <h1>{{ scenario.company_name }}</h1>
+        <p>{{ scenario.scenario_title }}</p>
+    </section>
+
+    <section class="scenario-card">
+
+        <h2>Financial overview</h2>
+
+        <div class="scenario-meta">
+            <span>Revenue growth</span>
+            <strong>{{ scenario.revenue_growth_pct }}%</strong>
+        </div>
+
+        <div class="scenario-meta">
+            <span>Profit margin</span>
+            <strong>{{ scenario.profit_margin_pct }}%</strong>
+        </div>
+
+        <div class="scenario-meta">
+            <span>Debt-to-equity</span>
+            <strong>{{ scenario.debt_to_equity }}</strong>
+        </div>
+
+        <div class="scenario-meta">
+            <span>Cash runway</span>
+            <strong>{{ scenario.cash_runway_months }} months</strong>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Market context</h2>
+        <p>{{ scenario.market_trend }}</p>
+
+        <h2>Positive factors</h2>
+        <p>{{ scenario.positive_factors }}</p>
+
+        <h2>Risk factors</h2>
+        <p>{{ scenario.risk_factors }}</p>
+
+        <h2>Missing information</h2>
+        <p>{{ scenario.missing_information }}</p>
+
+        <a class="primary-button" href="/scenarios">
+            ← Back to scenarios
+        </a>
+
+    </section>
+
+</main>
+
+</body>
+</html>

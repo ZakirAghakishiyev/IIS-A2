@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose an investment — Clarity</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">
+        <span class="brand-icon">C</span>
+        <span>clarity</span>
+    </a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+    </div>
+</nav>
+
+<main class="scenarios-page">
+
+    <section class="scenarios-heading">
+        <span class="eyebrow">YOUR INVESTMENT WORKSPACE</span>
+        <h1>Explore investment scenarios.</h1>
+        <p>
+            Select a company to examine its financial information
+            and explore an AI-generated recommendation.
+        </p>
+    </section>
+
+    <section class="scenario-grid">
+
+        {% for item in scenarios %}
+        <article class="scenario-card">
+
+            <span class="eyebrow">{{ item.sector }}</span>
+
+            <h2>{{ item.company_name }}</h2>
+
+            <p>{{ item.scenario_title }}</p>
+
+            <div class="scenario-meta">
+                <span>Recommendation</span>
+                <strong>{{ item.recommendation }}</strong>
+            </div>
+
+            <div class="scenario-meta">
+                <span>Uncertainty</span>
+                <strong>{{ item.uncertainty_level }}</strong>
+            </div>
+
+            <a class="primary-button"
+               href="{{ url_for('scenario_detail',
+                                scenario_id=item.scenario_id) }}">
+                Explore scenario →
+            </a>
+
+        </article>
+        {% endfor %}
+
+    </section>
+
+</main>
+
+</body>
+</html>

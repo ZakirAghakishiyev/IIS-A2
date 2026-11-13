@@ -67,7 +67,13 @@
         <h2>Missing information</h2>
         <p>{{ scenario.missing_information }}</p>
 
-        <a class="primary-button" href="/scenarios">
+        <a class="primary-button"
+            href="{{ url_for('recommendation',
+                            scenario_id=scenario.scenario_id) }}">
+            Generate AI recommendation →
+        </a>
+
+        <a class="secondary-button" href="/scenarios">
             ← Back to scenarios
         </a>
 

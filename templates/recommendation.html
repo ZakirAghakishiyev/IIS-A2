@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Recommendation — Clarity</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">
+        <span class="brand-icon">C</span>
+        <span>clarity</span>
+    </a>
+
+    <div class="nav-links">
+        <a href="/scenarios">All scenarios</a>
+    </div>
+</nav>
+
+<main class="recommendation-page">
+
+    <section class="recommendation-heading">
+        <span class="eyebrow">AI INVESTMENT ANALYSIS</span>
+
+        <h1>{{ scenario.company_name }}</h1>
+
+        <p>{{ scenario.scenario_title }}</p>
+    </section>
+
+    <!-- Recommendation -->
+    <section class="recommendation-result">
+
+        <span class="eyebrow">SYSTEM RECOMMENDATION</span>
+
+        <h2 class="recommendation-value
+            {{ recommendation|lower }}">
+            {{ recommendation }}
+        </h2>
+
+        <p>
+            This recommendation is based on the controlled
+            scenario information provided to Clarity.
+        </p>
+
+    </section>
+
+    <!-- Explanation -->
+    <section class="recommendation-section">
+
+        <span class="eyebrow">01 — UNDERSTAND</span>
+
+        <h2>Why this recommendation?</h2>
+
+        <p>{{ explanation.summary }}</p>
+
+        <div class="evidence-grid">
+
+            <div class="evidence-card">
+                <h3>Positive factors</h3>
+                <p>{{ explanation.positive_factors }}</p>
+            </div>
+
+            <div class="evidence-card">
+                <h3>Risk factors</h3>
+                <p>{{ explanation.risk_factors }}</p>
+            </div>
+
+        </div>
+
+        <details class="evidence-details">
+            <summary>Explore supporting evidence</summary>
+            <p>{{ explanation.supporting_evidence }}</p>
+        </details>
+
+    </section>
+
+    <!-- Uncertainty -->
+    <section class="recommendation-section">
+
+        <span class="eyebrow">02 — EVALUATE</span>
+
+        <h2>How certain is this assessment?</h2>
+
+        <div class="uncertainty-card">
+
+            <div class="uncertainty-top">
+                <div>
+                    <span class="panel-label">ESTIMATED CONFIDENCE</span>
+
+                    <h3>
+                        {{ uncertainty.confidence_percentage }}%
+                    </h3>
+                </div>
+
+                <span class="uncertainty-badge
+                    {{ uncertainty.uncertainty_level|lower }}">
+                    {{ uncertainty.uncertainty_level }} uncertainty
+                </span>
+            </div>
+
+            <div class="confidence-track">
+                <div class="confidence-fill"
+                     style="width: {{ uncertainty.confidence_percentage }}%">
+                </div>
+            </div>
+
+            <p>{{ uncertainty.confidence_basis }}</p>
+
+            <p class="confidence-disclaimer">
+                This is a controlled prototype estimate, not a
+                statistically validated probability that the
+                recommendation is correct.
+            </p>
+
+        </div>
+
+        <div class="limitations-card">
+            <h3>What information is missing?</h3>
+            <p>{{ explanation.limitations }}</p>
+        </div>
+
+    </section>
+
+    <!-- User control -->
+    
+<section class="recommendation-section decision-section">
+
+    <span class="eyebrow">03 — DECIDE</span>
+
+    <h2>What do you think?</h2>
+
+    <p>
+        Consider the recommendation and the available evidence.
+        Would you rely on the AI's recommendation in this scenario?
+    </p>
+
+    {% if submitted %}
+        <div class="decision-success">
+            <strong>Decision recorded successfully.</strong>
+            <p>
+                Thank you. Your response has been saved for
+                the project's evaluation.
+            </p>
+        </div>
+    {% endif %}
+
+    <form method="POST"
+          action="{{ url_for('submit_decision',
+                             scenario_id=scenario.scenario_id) }}">
+
+        <div class="decision-options">
+
+            <label class="decision-option">
+                <input type="radio"
+                       name="user_decision"
+                       value="Accept"
+                       required>
+                <span>
+                    <strong>Accept recommendation</strong>
+                    <small>I would follow the AI's recommendation.</small>
+                </span>
+            </label>
+
+            <label class="decision-option">
+                <input type="radio"
+                       name="user_decision"
+                       value="Reject"
+                       required>
+                <span>
+                    <strong>Reject recommendation</strong>
+                    <small>I would not follow the AI's recommendation.</small>
+                </span>
+            </label>
+
+        </div>
+
+        <label class="reason-label" for="reason">
+            Why did you make this decision? (Optional)
+        </label>
+
+        <textarea
+            id="reason"
+            name="reason"
+            rows="4"
+            maxlength="1000"
+            placeholder="Briefly explain what influenced your decision..."
+        ></textarea>
+
+        <button type="submit" class="primary-button">
+            Submit my decision →
+        </button>
+
+    </form>
+
+</section>
+
+
+    <p class="recommendation-disclaimer">
+        Clarity is an academic research prototype for educational
+        purposes only. It does not provide financial advice.
+    </p>
+
+</main>
+
+</body>
+</html>

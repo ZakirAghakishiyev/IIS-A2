@@ -12,7 +12,10 @@ from flask import (
 )
 
 from recommendation_engine import generate_recommendation
-from explanation_engine import generate_explanation
+from explanation_engine import (
+    generate_explanation,
+    generate_preference_insight
+)
 from uncertainty import get_uncertainty
 
 
@@ -27,6 +30,7 @@ BASE_DIR = Path(__file__).parent
 DATA_FILE = BASE_DIR / "scenarios.csv"
 DECISIONS_FILE = BASE_DIR / "decisions.csv"
 SESSIONS_FILE = BASE_DIR / "participant_sessions.csv"
+COMPREHENSION_FILE = BASE_DIR / "comprehension.csv"
 
 CONDITIONS = [
     "explanation_only",
@@ -169,6 +173,75 @@ def save_decision(record):
         writer.writerow(record)
 
 
+
+def comprehension_already_exists(session_id, scenario_id):
+    """Check whether this session has completed the comprehension check."""
+    if not COMPREHENSION_FILE.exists():
+        return False
+
+    with COMPREHENSION_FILE.open(
+        newline="",
+        encoding="utf-8"
+    ) as file:
+        for row in csv.DictReader(file):
+            if (
+                row.get("session_id") == session_id
+                and row.get("scenario_id") == scenario_id
+            ):
+                return True
+
+    return False
+
+
+def save_comprehension(record):
+    """Save comprehension results to a separate CSV file."""
+    fields = [
+        "timestamp",
+        "session_id",
+        "scenario_id",
+        "company_name",
+        "condition",
+        "explanation_answer",
+        "explanation_correct",
+        "uncertainty_answer",
+        "uncertainty_correct",
+        "total_correct",
+        "total_questions"
+    ]
+
+    file_exists = COMPREHENSION_FILE.exists()
+
+    with COMPREHENSION_FILE.open(
+        mode="a",
+        newline="",
+        encoding="utf-8"
+    ) as file:
+        writer = csv.DictWriter(file, fieldnames=fields)
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow(record)
+
+
+def get_comprehension_result(session_id, scenario_id):
+    """Retrieve the comprehension result for this session and scenario."""
+    if not COMPREHENSION_FILE.exists():
+        return None
+
+    with COMPREHENSION_FILE.open(
+        newline="",
+        encoding="utf-8"
+    ) as file:
+        for row in csv.DictReader(file):
+            if (
+                row.get("session_id") == session_id
+                and row.get("scenario_id") == scenario_id
+            ):
+                return row
+
+    return None
+
 def calculate_metrics(records):
     """Calculate reliance measures from controlled decisions."""
     total = len(records)
@@ -235,6 +308,60 @@ def calculate_metrics(records):
     }
 
 
+def calculate_comprehension_metrics(records):
+    """Calculate comprehension scores and question accuracy."""
+    total_submissions = len(records)
+
+    total_correct = sum(
+        int(row.get("total_correct") or 0)
+        for row in records
+    )
+
+    total_questions = sum(
+        int(row.get("total_questions") or 0)
+        for row in records
+    )
+
+    explanation_answers = [
+        row for row in records
+        if row.get("explanation_correct") in ["True", "False"]
+    ]
+
+    explanation_correct = sum(
+        1 for row in explanation_answers
+        if row["explanation_correct"] == "True"
+    )
+
+    uncertainty_answers = [
+        row for row in records
+        if row.get("uncertainty_correct") in ["True", "False"]
+    ]
+
+    uncertainty_correct = sum(
+        1 for row in uncertainty_answers
+        if row["uncertainty_correct"] == "True"
+    )
+
+    return {
+        "total_submissions": total_submissions,
+        "total_correct": total_correct,
+        "total_questions": total_questions,
+        "average_score": round(
+            total_correct / total_questions * 100, 1
+        ) if total_questions else 0,
+        "explanation_correct": explanation_correct,
+        "explanation_total": len(explanation_answers),
+        "explanation_accuracy": round(
+            explanation_correct / len(explanation_answers) * 100, 1
+        ) if explanation_answers else None,
+        "uncertainty_correct": uncertainty_correct,
+        "uncertainty_total": len(uncertainty_answers),
+        "uncertainty_accuracy": round(
+            uncertainty_correct / len(uncertainty_answers) * 100, 1
+        ) if uncertainty_answers else None
+    }
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -262,6 +389,51 @@ def scenario_detail(scenario_id):
     )
 
 
+@app.route("/personalise/<scenario_id>", methods=["POST"])
+def submit_preferences(scenario_id):
+    find_scenario(scenario_id)
+    get_condition()
+
+    investment_horizon = request.form.get(
+        "investment_horizon", ""
+    )
+
+    risk_tolerance = request.form.get(
+        "risk_tolerance", ""
+    )
+
+    investment_priority = request.form.get(
+        "investment_priority", ""
+    )
+
+    if investment_horizon not in ["short", "medium", "long"]:
+        abort(400, description="Invalid investment horizon.")
+
+    if risk_tolerance not in ["low", "medium", "high"]:
+        abort(400, description="Invalid risk tolerance.")
+
+    if investment_priority not in [
+        "growth", "stability", "balanced"
+    ]:
+        abort(400, description="Invalid investment priority.")
+
+    preferences = {
+        "investment_horizon": investment_horizon,
+        "risk_tolerance": risk_tolerance,
+        "investment_priority": investment_priority
+    }
+
+    session.setdefault("investment_preferences", {})
+    session["investment_preferences"][scenario_id] = preferences
+    session.modified = True
+
+    return redirect(
+        url_for("recommendation", scenario_id=scenario_id)
+    )
+
+
+
+
 @app.route("/recommendation/<scenario_id>")
 def recommendation(scenario_id):
     scenario = find_scenario(scenario_id)
@@ -270,6 +442,15 @@ def recommendation(scenario_id):
     recommendation_result = generate_recommendation(scenario)
     explanation = generate_explanation(scenario)
     uncertainty = get_uncertainty(scenario)
+
+    preferences = session.get(
+        "investment_preferences", {}
+    ).get(scenario_id)
+
+    preference_insight = (
+        generate_preference_insight(scenario, preferences)
+        if preferences else None
+    )
 
     return render_template(
         "recommendation.html",
@@ -284,7 +465,19 @@ def recommendation(scenario_id):
         submitted=request.args.get("submitted") == "1",
         already_submitted=(
             request.args.get("already_submitted") == "1"
-        )
+        ),
+        comprehension_result=get_comprehension_result(
+            session.get("session_id"),
+            scenario_id
+        ),
+        comprehension_submitted=(
+            request.args.get("comprehension_submitted") == "1"
+        ),
+        comprehension_already_submitted=(
+            request.args.get("comprehension_already_submitted") == "1"
+        ),
+        preferences=preferences,
+        preference_insight=preference_insight,
     )
 
 
@@ -336,8 +529,96 @@ def submit_decision(scenario_id):
     )
 
 
+@app.route("/comprehension/<scenario_id>", methods=["POST"])
+def submit_comprehension(scenario_id):
+    scenario = find_scenario(scenario_id)
+    condition = get_condition()
+    session_id = session["session_id"]
+
+    # Prevent duplicate comprehension submissions.
+    if comprehension_already_exists(session_id, scenario_id):
+        return redirect(
+            url_for(
+                "recommendation",
+                scenario_id=scenario_id,
+                comprehension_already_submitted=1
+            )
+        )
+
+    explanation_answer = request.form.get(
+        "explanation_answer", ""
+    )
+
+    uncertainty_answer = request.form.get(
+        "uncertainty_answer", ""
+    )
+
+    # Validate the explanation question.
+    if explanation_answer not in [
+        "recommendation_only",
+        "evidence_and_risks",
+        "positive_factors_only"
+    ]:
+        abort(400, description="Please answer the explanation question.")
+
+    explanation_correct = (
+        explanation_answer == "evidence_and_risks"
+    )
+
+    # The uncertainty question is only available in condition B.
+    if condition == "explanation_uncertainty":
+        if uncertainty_answer not in [
+            "guaranteed",
+            "prototype_estimate",
+            "future_performance"
+        ]:
+            abort(400, description="Please answer the uncertainty question.")
+
+        uncertainty_correct = (
+            uncertainty_answer == "prototype_estimate"
+        )
+
+        total_questions = 2
+
+    else:
+        uncertainty_answer = ""
+        uncertainty_correct = ""
+        total_questions = 1
+
+    total_correct = int(explanation_correct)
+
+    if condition == "explanation_uncertainty":
+        total_correct += int(uncertainty_correct)
+
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "session_id": session_id,
+        "scenario_id": scenario["scenario_id"],
+        "company_name": scenario["company_name"],
+        "condition": condition,
+        "explanation_answer": explanation_answer,
+        "explanation_correct": explanation_correct,
+        "uncertainty_answer": uncertainty_answer,
+        "uncertainty_correct": uncertainty_correct,
+        "total_correct": total_correct,
+        "total_questions": total_questions
+    }
+
+    save_comprehension(record)
+
+    return redirect(
+        url_for(
+            "recommendation",
+            scenario_id=scenario_id,
+            comprehension_submitted=1
+        )
+    )
+
+
+
 @app.route("/evaluation")
 def evaluation():
+    # Load investment decision records.
     if not DECISIONS_FILE.exists():
         records = []
     else:
@@ -362,15 +643,64 @@ def evaluation():
         if row["condition"] == "explanation_uncertainty"
     ]
 
+    # Load comprehension records.
+    if not COMPREHENSION_FILE.exists():
+        comprehension_records = []
+    else:
+        with COMPREHENSION_FILE.open(
+            newline="",
+            encoding="utf-8"
+        ) as file:
+            comprehension_records = list(csv.DictReader(file))
+
+    # Keep only records from the two experimental conditions.
+    comprehension_records = [
+        row for row in comprehension_records
+        if row.get("condition") in CONDITIONS
+    ]
+
+    comprehension_explanation_only = [
+        row for row in comprehension_records
+        if row["condition"] == "explanation_only"
+    ]
+
+    comprehension_explanation_uncertainty = [
+        row for row in comprehension_records
+        if row["condition"] == "explanation_uncertainty"
+    ]
+
     return render_template(
         "evaluation.html",
+
         overall=calculate_metrics(experimental_records),
+
         explanation_only=calculate_metrics(explanation_only),
+
         explanation_uncertainty=calculate_metrics(
             explanation_uncertainty
         ),
+
+        comprehension=calculate_comprehension_metrics(
+            comprehension_records
+        ),
+
+        comprehension_explanation_only=(
+            calculate_comprehension_metrics(
+                comprehension_explanation_only
+            )
+        ),
+
+        comprehension_explanation_uncertainty=(
+            calculate_comprehension_metrics(
+                comprehension_explanation_uncertainty
+            )
+        ),
+
         total_records=len(records),
-        excluded_records=len(records) - len(experimental_records)
+
+        excluded_records=(
+            len(records) - len(experimental_records)
+        )
     )
 
 

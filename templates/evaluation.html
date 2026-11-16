@@ -69,6 +69,118 @@
 
     </section>
 
+
+<!-- Comprehension results -->
+
+<section class="evaluation-section">
+
+    <h2>Comprehension results</h2>
+
+    <p>
+        These measures show how accurately users answered
+        the predefined questions about the recommendation
+        explanation and uncertainty information.
+    </p>
+
+    <div class="evaluation-grid">
+
+        <article class="evaluation-card">
+            <span class="eyebrow">COMPLETED CHECKS</span>
+            <h3>{{ comprehension.total_submissions }}</h3>
+            <p>Recorded submissions</p>
+        </article>
+
+        <article class="evaluation-card">
+            <span class="eyebrow">AVERAGE SCORE</span>
+            <h3>{{ comprehension.average_score }}%</h3>
+            <p>
+                {{ comprehension.total_correct }}
+                correct out of
+                {{ comprehension.total_questions }}
+                questions
+            </p>
+        </article>
+
+    </div>
+
+    <h3>Compare comprehension by condition</h3>
+
+    <div class="condition-grid">
+
+        <article class="evaluation-card">
+
+            <span class="eyebrow">CONDITION A</span>
+            <h3>Explanation only</h3>
+
+            <p>
+                {{ comprehension_explanation_only.total_submissions }}
+                completed checks
+            </p>
+
+            <div class="metric-row">
+                <span>Explanation accuracy</span>
+                <strong>
+                    {{ comprehension_explanation_only.explanation_accuracy }}%
+                </strong>
+            </div>
+
+            <p>
+                {{ comprehension_explanation_only.explanation_correct }}
+                correct out of
+                {{ comprehension_explanation_only.explanation_total }}
+            </p>
+
+        </article>
+
+        <article class="evaluation-card">
+
+            <span class="eyebrow">CONDITION B</span>
+            <h3>Explanation + uncertainty</h3>
+
+            <p>
+                {{ comprehension_explanation_uncertainty.total_submissions }}
+                completed checks
+            </p>
+
+            <div class="metric-row">
+                <span>Explanation accuracy</span>
+                <strong>
+                    {{ comprehension_explanation_uncertainty.explanation_accuracy }}%
+                </strong>
+            </div>
+
+            <p>
+                {{ comprehension_explanation_uncertainty.explanation_correct }}
+                correct out of
+                {{ comprehension_explanation_uncertainty.explanation_total }}
+            </p>
+
+            <div class="metric-row">
+                <span>Uncertainty accuracy</span>
+                <strong>
+                    {{ comprehension_explanation_uncertainty.uncertainty_accuracy }}%
+                </strong>
+            </div>
+
+            <p>
+                {{ comprehension_explanation_uncertainty.uncertainty_correct }}
+                correct out of
+                {{ comprehension_explanation_uncertainty.uncertainty_total }}
+            </p>
+
+        </article>
+
+    </div>
+
+    <p class="evaluation-disclaimer">
+        Comprehension scores are based on predefined questions
+        within this prototype. They are not a validated measure
+        of financial literacy or general understanding.
+    </p>
+
+</section>
+
+
     <section class="evaluation-section">
 
         <h2>Compare presentation conditions</h2>

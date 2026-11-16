@@ -1,10 +1,13 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{ scenario.company_name }} — Clarity</title>
+
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -16,6 +19,7 @@
         <span class="brand-icon">C</span>
         <span>clarity</span>
     </a>
+
     <div class="nav-links">
         <a href="/scenarios">All scenarios</a>
     </div>
@@ -25,7 +29,9 @@
 
     <section class="scenarios-heading">
         <span class="eyebrow">{{ scenario.sector }}</span>
+
         <h1>{{ scenario.company_name }}</h1>
+
         <p>{{ scenario.scenario_title }}</p>
     </section>
 
@@ -67,11 +73,99 @@
         <h2>Missing information</h2>
         <p>{{ scenario.missing_information }}</p>
 
-        <a class="primary-button"
-            href="{{ url_for('recommendation',
-                            scenario_id=scenario.scenario_id) }}">
-            Generate AI recommendation →
-        </a>
+        <div class="divider"></div>
+
+        <!-- Personalisation -->
+
+        <h2>Personalise your assessment</h2>
+
+        <p>
+            Tell Clarity about your investment preferences.
+            These will help contextualise the explanation, but
+            will not change the underlying system recommendation.
+        </p>
+
+        <form method="POST"
+              action="{{ url_for('submit_preferences',
+                                 scenario_id=scenario.scenario_id) }}">
+
+            <label for="investment_horizon">
+                Investment horizon
+            </label>
+
+            <select id="investment_horizon"
+                    name="investment_horizon"
+                    required>
+
+                <option value="">Select your horizon</option>
+
+                <option value="short">
+                    Short term (under 1 year)
+                </option>
+
+                <option value="medium">
+                    Medium term (1–5 years)
+                </option>
+
+                <option value="long">
+                    Long term (over 5 years)
+                </option>
+
+            </select>
+
+            <label for="risk_tolerance">
+                Risk tolerance
+            </label>
+
+            <select id="risk_tolerance"
+                    name="risk_tolerance"
+                    required>
+
+                <option value="">Select your risk tolerance</option>
+
+                <option value="low">
+                    Low — prefer lower risk
+                </option>
+
+                <option value="medium">
+                    Medium — accept some risk
+                </option>
+
+                <option value="high">
+                    High — comfortable with higher risk
+                </option>
+
+            </select>
+
+            <label for="investment_priority">
+                Investment priority
+            </label>
+
+            <select id="investment_priority"
+                    name="investment_priority"
+                    required>
+
+                <option value="">Select your priority</option>
+
+                <option value="growth">
+                    Growth
+                </option>
+
+                <option value="stability">
+                    Stability
+                </option>
+
+                <option value="balanced">
+                    Balanced approach
+                </option>
+
+            </select>
+
+            <button type="submit" class="primary-button">
+                Generate personalised assessment →
+            </button>
+
+        </form>
 
         <a class="secondary-button" href="/scenarios">
             ← Back to scenarios

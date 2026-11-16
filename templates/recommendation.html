@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,12 +36,12 @@
     </section>
 
     <!-- Recommendation -->
+
     <section class="recommendation-result">
 
         <span class="eyebrow">SYSTEM RECOMMENDATION</span>
 
-        <h2 class="recommendation-value
-            {{ recommendation|lower }}">
+        <h2 class="recommendation-value {{ recommendation|lower }}">
             {{ recommendation }}
         </h2>
 
@@ -52,6 +53,7 @@
     </section>
 
     <!-- Explanation -->
+
     <section class="recommendation-section">
 
         <span class="eyebrow">01 — UNDERSTAND</span>
@@ -81,137 +83,373 @@
 
     </section>
 
-    <!-- Uncertainty -->
-    
-    {% if show_uncertainty %}
+    <!-- Personalised assessment -->
+
+    {% if preference_insight %}
+
     <section class="recommendation-section">
 
-    <span class="eyebrow">02 — EVALUATE</span>
+        <span class="eyebrow">02 — YOUR PREFERENCES</span>
 
-    <h2>How certain is this assessment?</h2>
+        <h2>How does this fit your priorities?</h2>
 
-    <div class="uncertainty-card">
-
-        <div class="uncertainty-top">
-            <div>
-                <span class="panel-label">
-                    PROTOTYPE CONFIDENCE ESTIMATE
-                </span>
-
-                <h3>{{ uncertainty.confidence_percentage }}%</h3>
-            </div>
-
-            <span class="uncertainty-badge
-                {{ uncertainty.uncertainty_level|lower }}">
-                {{ uncertainty.uncertainty_level }} uncertainty
-            </span>
-        </div>
-
-        <div class="confidence-track">
-            <div class="confidence-fill"
-                 style="width: {{ uncertainty.confidence_percentage }}%">
-            </div>
-        </div>
-
-        <p>{{ uncertainty.confidence_basis }}</p>
-
-        <p class="confidence-disclaimer">
-            This is a controlled prototype estimate, not a
-            statistically validated probability that the
-            recommendation is correct.
+        <p>
+            Clarity has considered your stated preferences
+            alongside the company's available information.
         </p>
 
-    </div>
+        <div class="evidence-grid">
 
-    <div class="limitations-card">
-        <h3>What information is missing?</h3>
-        <p>{{ explanation.limitations }}</p>
-    </div>
+            <div class="evidence-card">
+                <h3>Investment horizon</h3>
+                <p>{{ preference_insight.investment_horizon }}</p>
+            </div>
 
-</section>
-{% endif %}
+            <div class="evidence-card">
+                <h3>Risk tolerance</h3>
+                <p>{{ preference_insight.risk_tolerance }}</p>
+            </div>
 
+            <div class="evidence-card">
+                <h3>Investment priority</h3>
+                <p>{{ preference_insight.investment_priority }}</p>
+            </div>
 
-    <!-- User control -->
-    
-<section class="recommendation-section decision-section">
-
-    <span class="eyebrow">03 — DECIDE</span>
-
-    <h2>What do you think?</h2>
-
-    <p>
-        Consider the recommendation and the available evidence.
-        Would you rely on the AI's recommendation in this scenario?
-    </p>
-
-    
-    {% if submitted %}
-        <div class="decision-success">
-            <strong>Decision recorded successfully.</strong>
-            <p>Your response has been saved.</p>
         </div>
-    {% elif already_submitted %}
-        <div class="decision-success">
-            <strong>You've already submitted a decision.</strong>
-            <p>
-                Only one decision per scenario is recorded
-                in each browser session.
-            </p>
+
+        <div class="limitations-card">
+
+            <h3>Personalised considerations</h3>
+
+            {% for insight in preference_insight.insights %}
+                <p>{{ insight }}</p>
+            {% endfor %}
+
         </div>
+
+        <p class="confidence-disclaimer">
+            These observations contextualise the existing
+            scenario assessment. Your preferences do not
+            change the system's original recommendation.
+        </p>
+
+    </section>
+
+    {% else %}
+
+    <section class="recommendation-section">
+
+        <span class="eyebrow">02 — YOUR PREFERENCES</span>
+
+        <h2>Make this assessment more relevant</h2>
+
+        <p>
+            You have not provided investment preferences
+            for this scenario yet.
+        </p>
+
+        <a class="primary-button"
+           href="{{ url_for('scenario_detail',
+                            scenario_id=scenario.scenario_id) }}">
+            Set investment preferences →
+        </a>
+
+    </section>
+
     {% endif %}
 
+    <!-- Uncertainty -->
 
-    <form method="POST"
-          action="{{ url_for('submit_decision',
-                             scenario_id=scenario.scenario_id) }}">
+    {% if show_uncertainty %}
 
-        <div class="decision-options">
+    <section class="recommendation-section">
 
-            <label class="decision-option">
-                <input type="radio"
-                       name="user_decision"
-                       value="Accept"
-                       required>
-                <span>
-                    <strong>Accept recommendation</strong>
-                    <small>I would follow the AI's recommendation.</small>
+        <span class="eyebrow">03 — EVALUATE</span>
+
+        <h2>How certain is this assessment?</h2>
+
+        <div class="uncertainty-card">
+
+            <div class="uncertainty-top">
+
+                <div>
+                    <span class="panel-label">
+                        PROTOTYPE CONFIDENCE ESTIMATE
+                    </span>
+
+                    <h3>{{ uncertainty.confidence_percentage }}%</h3>
+                </div>
+
+                <span class="uncertainty-badge {{ uncertainty.uncertainty_level|lower }}">
+                    {{ uncertainty.uncertainty_level }} uncertainty
                 </span>
-            </label>
 
-            <label class="decision-option">
-                <input type="radio"
-                       name="user_decision"
-                       value="Reject"
-                       required>
-                <span>
-                    <strong>Reject recommendation</strong>
-                    <small>I would not follow the AI's recommendation.</small>
-                </span>
-            </label>
+            </div>
+
+            <div class="confidence-track">
+                <div class="confidence-fill"
+                     style="width: {{ uncertainty.confidence_percentage }}%">
+                </div>
+            </div>
+
+            <p>{{ uncertainty.confidence_basis }}</p>
+
+            <p class="confidence-disclaimer">
+                This is a controlled prototype estimate, not a
+                statistically validated probability that the
+                recommendation is correct.
+            </p>
 
         </div>
 
-        <label class="reason-label" for="reason">
-            Why did you make this decision? (Optional)
-        </label>
+        <div class="limitations-card">
+            <h3>What information is missing?</h3>
+            <p>{{ explanation.limitations }}</p>
+        </div>
 
-        <textarea
-            id="reason"
-            name="reason"
-            rows="4"
-            maxlength="1000"
-            placeholder="Briefly explain what influenced your decision..."
-        ></textarea>
+    </section>
 
-        <button type="submit" class="primary-button">
-            Submit my decision →
-        </button>
+    {% endif %}
 
-    </form>
+    <!-- Comprehension check -->
 
-</section>
+    <section class="recommendation-section comprehension-section">
 
+        <span class="eyebrow">04 — CHECK YOUR UNDERSTANDING</span>
+
+        <h2>Have you understood the assessment?</h2>
+
+        <p>
+            Answer the following questions to check how well you
+            understand the information presented by Clarity.
+        </p>
+
+        {% if comprehension_submitted and comprehension_result %}
+
+            <div class="decision-success">
+                <strong>Understanding check completed.</strong>
+                <p>
+                    You answered
+                    {{ comprehension_result.total_correct }}
+                    out of
+                    {{ comprehension_result.total_questions }}
+                    questions correctly.
+                </p>
+            </div>
+
+        {% elif comprehension_already_submitted %}
+
+            <div class="decision-success">
+                <strong>You've already completed this check.</strong>
+                <p>Your previous answers have been recorded.</p>
+            </div>
+
+        {% elif comprehension_result %}
+
+            <div class="decision-success">
+                <strong>You've already completed this check.</strong>
+                <p>
+                    Your previous score was
+                    {{ comprehension_result.total_correct }}
+                    out of
+                    {{ comprehension_result.total_questions }}.
+                </p>
+            </div>
+
+        {% else %}
+
+        <form method="POST"
+              action="{{ url_for('submit_comprehension',
+                                 scenario_id=scenario.scenario_id) }}">
+
+            <div class="comprehension-question">
+
+                <h3>
+                    1. What should you consider when evaluating
+                    this recommendation?
+                </h3>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="explanation_answer"
+                           value="recommendation_only"
+                           required>
+                    <span>
+                        The recommendation alone is enough
+                        to make a decision.
+                    </span>
+                </label>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="explanation_answer"
+                           value="evidence_and_risks"
+                           required>
+                    <span>
+                        Both supporting evidence and risk
+                        factors, including missing information.
+                    </span>
+                </label>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="explanation_answer"
+                           value="positive_factors_only"
+                           required>
+                    <span>
+                        Only the positive factors presented
+                        by the system.
+                    </span>
+                </label>
+
+            </div>
+
+            {% if show_uncertainty %}
+
+            <div class="comprehension-question">
+
+                <h3>
+                    2. What does the prototype confidence
+                    estimate tell you?
+                </h3>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="uncertainty_answer"
+                           value="guaranteed"
+                           required>
+                    <span>
+                        It guarantees that the recommendation
+                        is correct by that percentage.
+                    </span>
+                </label>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="uncertainty_answer"
+                           value="prototype_estimate"
+                           required>
+                    <span>
+                        It is a controlled prototype estimate,
+                        not a statistically validated probability.
+                    </span>
+                </label>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="uncertainty_answer"
+                           value="future_performance"
+                           required>
+                    <span>
+                        It predicts the percentage return
+                        the investment will generate.
+                    </span>
+                </label>
+
+            </div>
+
+            {% endif %}
+
+            <button type="submit" class="primary-button">
+                Submit understanding check →
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </section>
+
+    <!-- User decision -->
+
+    <section class="recommendation-section decision-section">
+
+        <span class="eyebrow">05 — DECIDE</span>
+
+        <h2>What do you think?</h2>
+
+        <p>
+            Consider the recommendation, the available evidence
+            and your own preferences. Would you rely on the AI's
+            recommendation in this scenario?
+        </p>
+
+        {% if submitted %}
+
+            <div class="decision-success">
+                <strong>Decision recorded successfully.</strong>
+                <p>Your response has been saved.</p>
+            </div>
+
+        {% elif already_submitted %}
+
+            <div class="decision-success">
+                <strong>You've already submitted a decision.</strong>
+                <p>
+                    Only one decision per scenario is recorded
+                    in each browser session.
+                </p>
+            </div>
+
+        {% else %}
+
+        <form method="POST"
+              action="{{ url_for('submit_decision',
+                                 scenario_id=scenario.scenario_id) }}">
+
+            <div class="decision-options">
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="user_decision"
+                           value="Accept"
+                           required>
+
+                    <span>
+                        <strong>Accept recommendation</strong>
+                        <small>
+                            I would follow the AI's recommendation.
+                        </small>
+                    </span>
+                </label>
+
+                <label class="decision-option">
+                    <input type="radio"
+                           name="user_decision"
+                           value="Reject"
+                           required>
+
+                    <span>
+                        <strong>Reject recommendation</strong>
+                        <small>
+                            I would not follow the AI's recommendation.
+                        </small>
+                    </span>
+                </label>
+
+            </div>
+
+            <label class="reason-label" for="reason">
+                Why did you make this decision? (Optional)
+            </label>
+
+            <textarea
+                id="reason"
+                name="reason"
+                rows="4"
+                maxlength="1000"
+                placeholder="Briefly explain what influenced your decision..."
+            ></textarea>
+
+            <button type="submit" class="primary-button">
+                Submit my decision →
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </section>
 
     <p class="recommendation-disclaimer">
         Clarity is an academic research prototype for educational

@@ -82,51 +82,55 @@
     </section>
 
     <!-- Uncertainty -->
+    
+    {% if show_uncertainty %}
     <section class="recommendation-section">
 
-        <span class="eyebrow">02 — EVALUATE</span>
+    <span class="eyebrow">02 — EVALUATE</span>
 
-        <h2>How certain is this assessment?</h2>
+    <h2>How certain is this assessment?</h2>
 
-        <div class="uncertainty-card">
+    <div class="uncertainty-card">
 
-            <div class="uncertainty-top">
-                <div>
-                    <span class="panel-label">ESTIMATED CONFIDENCE</span>
-
-                    <h3>
-                        {{ uncertainty.confidence_percentage }}%
-                    </h3>
-                </div>
-
-                <span class="uncertainty-badge
-                    {{ uncertainty.uncertainty_level|lower }}">
-                    {{ uncertainty.uncertainty_level }} uncertainty
+        <div class="uncertainty-top">
+            <div>
+                <span class="panel-label">
+                    PROTOTYPE CONFIDENCE ESTIMATE
                 </span>
+
+                <h3>{{ uncertainty.confidence_percentage }}%</h3>
             </div>
 
-            <div class="confidence-track">
-                <div class="confidence-fill"
-                     style="width: {{ uncertainty.confidence_percentage }}%">
-                </div>
+            <span class="uncertainty-badge
+                {{ uncertainty.uncertainty_level|lower }}">
+                {{ uncertainty.uncertainty_level }} uncertainty
+            </span>
+        </div>
+
+        <div class="confidence-track">
+            <div class="confidence-fill"
+                 style="width: {{ uncertainty.confidence_percentage }}%">
             </div>
-
-            <p>{{ uncertainty.confidence_basis }}</p>
-
-            <p class="confidence-disclaimer">
-                This is a controlled prototype estimate, not a
-                statistically validated probability that the
-                recommendation is correct.
-            </p>
-
         </div>
 
-        <div class="limitations-card">
-            <h3>What information is missing?</h3>
-            <p>{{ explanation.limitations }}</p>
-        </div>
+        <p>{{ uncertainty.confidence_basis }}</p>
 
-    </section>
+        <p class="confidence-disclaimer">
+            This is a controlled prototype estimate, not a
+            statistically validated probability that the
+            recommendation is correct.
+        </p>
+
+    </div>
+
+    <div class="limitations-card">
+        <h3>What information is missing?</h3>
+        <p>{{ explanation.limitations }}</p>
+    </div>
+
+</section>
+{% endif %}
+
 
     <!-- User control -->
     
@@ -141,15 +145,22 @@
         Would you rely on the AI's recommendation in this scenario?
     </p>
 
+    
     {% if submitted %}
         <div class="decision-success">
             <strong>Decision recorded successfully.</strong>
+            <p>Your response has been saved.</p>
+        </div>
+    {% elif already_submitted %}
+        <div class="decision-success">
+            <strong>You've already submitted a decision.</strong>
             <p>
-                Thank you. Your response has been saved for
-                the project's evaluation.
+                Only one decision per scenario is recorded
+                in each browser session.
             </p>
         </div>
     {% endif %}
+
 
     <form method="POST"
           action="{{ url_for('submit_decision',

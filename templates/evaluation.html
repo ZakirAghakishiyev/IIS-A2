@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluation — Clarity</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">
+        <span class="brand-icon">C</span>
+        <span>clarity</span>
+    </a>
+
+    <div class="nav-links">
+        <a href="/scenarios">Scenarios</a>
+        <a href="/evaluation">Evaluation</a>
+    </div>
+</nav>
+
+<main class="evaluation-page">
+
+    <section class="scenarios-heading">
+        <span class="eyebrow">PROJECT EVALUATION</span>
+        <h1>Understanding user reliance.</h1>
+        <p>
+            Explore how users responded to AI recommendations
+            across the two presentation conditions.
+        </p>
+    </section>
+
+    <div class="evaluation-notice">
+        <strong>{{ overall.total }} experimental decisions recorded</strong>
+        <p>
+            {{ excluded_records }} older or incomplete test records
+            are excluded from the comparison.
+        </p>
+    </div>
+
+    <section class="evaluation-section">
+
+        <h2>Overall results</h2>
+
+        <div class="evaluation-grid">
+
+            <article class="evaluation-card">
+                <span class="eyebrow">ACCEPTED</span>
+                <h3>{{ overall.accepted }}</h3>
+            </article>
+
+            <article class="evaluation-card">
+                <span class="eyebrow">REJECTED</span>
+                <h3>{{ overall.rejected }}</h3>
+            </article>
+
+            <article class="evaluation-card">
+                <span class="eyebrow">APPROPRIATE RELIANCE</span>
+                <h3>{{ overall.appropriate_rate }}%</h3>
+                <p>{{ overall.appropriate }} decisions</p>
+            </article>
+
+        </div>
+
+    </section>
+
+    <section class="evaluation-section">
+
+        <h2>Compare presentation conditions</h2>
+
+        <div class="condition-grid">
+
+            <article class="evaluation-card">
+                <span class="eyebrow">CONDITION A</span>
+                <h3>Explanation only</h3>
+
+                <p>{{ explanation_only.total }} decisions</p>
+
+                <div class="metric-row">
+                    <span>Appropriate reliance</span>
+                    <strong>{{ explanation_only.appropriate_rate }}%</strong>
+                </div>
+
+                <div class="metric-row">
+                    <span>Over-reliance</span>
+                    <strong>{{ explanation_only.over_reliance_rate }}%</strong>
+                </div>
+
+                <div class="metric-row">
+                    <span>Under-reliance</span>
+                    <strong>{{ explanation_only.under_reliance_rate }}%</strong>
+                </div>
+            </article>
+
+            <article class="evaluation-card">
+                <span class="eyebrow">CONDITION B</span>
+                <h3>Explanation + uncertainty</h3>
+
+                <p>{{ explanation_uncertainty.total }} decisions</p>
+
+                <div class="metric-row">
+                    <span>Appropriate reliance</span>
+                    <strong>{{ explanation_uncertainty.appropriate_rate }}%</strong>
+                </div>
+
+                <div class="metric-row">
+                    <span>Over-reliance</span>
+                    <strong>{{ explanation_uncertainty.over_reliance_rate }}%</strong>
+                </div>
+
+                <div class="metric-row">
+                    <span>Under-reliance</span>
+                    <strong>{{ explanation_uncertainty.under_reliance_rate }}%</strong>
+                </div>
+            </article>
+
+        </div>
+
+    </section>
+
+    <section class="evaluation-section">
+
+        <h2>How the measures are calculated</h2>
+
+        <div class="evaluation-card">
+            <p>
+                <strong>Appropriate reliance:</strong>
+                accepting defensible recommendations and rejecting
+                misleading recommendations.
+            </p>
+
+            <p>
+                <strong>Over-reliance:</strong>
+                accepting a recommendation labelled misleading
+                in the controlled dataset.
+            </p>
+
+            <p>
+                <strong>Under-reliance:</strong>
+                rejecting a recommendation labelled defensible
+                in the controlled dataset.
+            </p>
+        </div>
+
+        <p class="evaluation-disclaimer">
+            These measures use the reference assessments assigned
+            to the fictional scenarios. They do not measure actual
+            investment outcomes or establish causal effects.
+            Results are descriptive and depend on the number and
+            characteristics of submitted decisions.
+        </p>
+
+    </section>
+
+</main>
+
+</body>
+</html>

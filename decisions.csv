@@ -1,3 +1,3 @@
-timestamp,scenario_id,company_name,recommendation,confidence_score,uncertainty_level,user_decision,reason
-2026-11-13T01:02:40.600014+00:00,CL002,Harbor Foods,Hold,0.78,Medium,Reject,
-2026-11-13T01:03:43.811222+00:00,CL003,Aether Biomed,Hold,0.57,High,Accept,Nice
+timestamp,session_id,scenario_id,company_name,recommendation,reference_assessment,confidence_score,uncertainty_level,condition,user_decision,reason
+2026-11-16T00:24:11.565114+00:00,ac92d2f5-1b44-42e5-92a6-f2aabcf1b532,CL003,Aether Biomed,Hold,Defensible,0.57,High,explanation_only,Accept,efgvwervb fgvDWV
+2026-11-16T00:24:56.162571+00:00,ac92d2f5-1b44-42e5-92a6-f2aabcf1b532,CL005,Meridian Water,Hold,Defensible,0.69,Medium,explanation_only,Reject,L; KMK

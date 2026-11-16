@@ -1,0 +1,3 @@
+timestamp,scenario_id,company_name,recommendation,confidence_score,uncertainty_level,user_decision,reason
+2026-11-13T01:02:40.600014+00:00,CL002,Harbor Foods,Hold,0.78,Medium,Reject,
+2026-11-13T01:03:43.811222+00:00,CL003,Aether Biomed,Hold,0.57,High,Accept,Nice

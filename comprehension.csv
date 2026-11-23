@@ -1,3 +1,4 @@
 timestamp,session_id,scenario_id,company_name,condition,explanation_answer,explanation_correct,uncertainty_answer,uncertainty_correct,total_correct,total_questions
 2026-11-16T01:11:43.641633+00:00,ac92d2f5-1b44-42e5-92a6-f2aabcf1b532,CL002,Harbor Foods,explanation_only,evidence_and_risks,True,,,1,1
 2026-11-16T01:42:14.011259+00:00,ac92d2f5-1b44-42e5-92a6-f2aabcf1b532,CL003,Aether Biomed,explanation_only,recommendation_only,False,,,0,1
+2026-11-19T13:40:10.930658+00:00,63bf96f2-6995-4756-8b43-3ac615eb77dc,CL002,Harbor Foods,explanation_only,evidence_and_risks,True,,,1,1
